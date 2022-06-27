@@ -4,6 +4,7 @@ import time
 
 
 def start():
+	err = 0
 	hostCmdStr = "/usr/local/bin/gst-launch-1.0 -v udpsrc port=5000" 
 	hostCmdStr += " ! gdpdepay ! rtph264depay ! avdec_h264 ! videoconvert ! autovideosink sync=false"
 
@@ -20,12 +21,12 @@ def start():
 	for i in range(30):
 		log = outfile_r.read()
 		if ('Setting pipeline to PLAYING ...' in log):
-			return log
+			return err
 		time.sleep(0.1)
 
 
-
-	return "Error: GStreamer could not be started on host"
+	err = 1
+	return err
 
 
 

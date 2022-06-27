@@ -11,6 +11,8 @@ def getDevices():
 
 
 def getSourceIP(devices):
+	err = 0
+
 	for device in devices:
 
 		if ('at ' not in device):
@@ -19,16 +21,17 @@ def getSourceIP(devices):
 		macAddress = device.split('at ')[1].split(' ')[0]
 
 		if (isPiMacAddress(macAddress)):
-			return device.split('(')[1].split(')')[0]
+			return str(device.split('(')[1].split(')')[0]), err
 			
 	
 	# if this point is reached, MAC is not found
 	# try the first (incomplete)
 	for device in devices:
 		if ('(incomplete)' in device):
-			return device.split('(')[1].split(')')[0]
+			return str(device.split('(')[1].split(')')[0]), err
 
-	return "Cannot find IP address of Pi"
+	err = 1
+	return "Cannot find IP address of Pi", err
 
 
 macPrefixes = ['B8:27:EB', 'B8-27-EB', 'B827.EB', 
@@ -46,12 +49,14 @@ def isPiMacAddress(macAddress):
 	return False
 
 def getHostIP():
+	err = 0
 	cmd = ['ipconfig', 'getifaddr', 'en0']
 	retBytes = run(cmd, capture_output=True).stdout
 	retString = retBytes.decode("utf-8").split("\n")[0]
 
 	if ('192.168.' not in retString):
-		return "Cannot find IP address of this Mac"
+		err = 1
+		return "Cannot find IP address of this Mac", err
 
-	return retString
+	return str(retString), err
 

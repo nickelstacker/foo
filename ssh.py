@@ -9,20 +9,19 @@ import network
 # sftp client and the underlying spur SshShell are automatically closed when the shell is closed.
 def beginConnection(ip):
 
+    err = 0
+
     shell = spurplus.connect_with_retries(hostname=ip, username='pi', password='meam520', connect_timeout=3, retries=1, retry_period=1)
 
     testResult = shell.run(["echo", "-n", "hello"])
     if (testResult.output == "hello"):
-        return shell
-    else:
-        return "Could not start SSH session"
+        print("SSH connection was not successful")
+        err = 1
+    return shell, err
 
 def sendSourceCode(shell, host_ip):
 
-    # file_text = "from picamera import PiCamera\n"
-    # file_text += "camera = PiCamera()\n"
-    # file_text += "camera.resolution = (1280, 720)\n"
-    # file_text += "camera.start_recording('/home/pi/video.h264')\n"
+    err = 0
 
     # bitratem = 1000000
     # bitrate = 5500000
@@ -52,10 +51,10 @@ def sendSourceCode(shell, host_ip):
     shell.write_text(remote_path=p, text=file_text)
 
     if (shell.read_text(p) != file_text):
-        return None
-    else:
-        return 0
-
+        print("Failed to install script on target")
+        err = 1
+    
+    return err
 
 def startSource(shell):
     executeSrcCmd(shell)
@@ -83,10 +82,7 @@ def free(shell):
     shell.close()
 
     
-    if (len(quitProcesses) < 1):
-        return None
-    else:
-        return quitProcesses
+    return len(quitProcesses)
 
 
 
